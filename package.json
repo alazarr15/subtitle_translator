@@ -1,0 +1,31 @@
+{
+  "name": "translate",
+  "version": "1.0.0",
+  "main": "translate.js",
+  "scripts": {
+    "start": "node translate.js",
+    "watch:css": ".\\tw.exe --input public/css/input.css --output public/css/output.css --watch",
+    "build:css": ".\\tw.exe --input public/css/input.css --output public/css/output.css --minify"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@google-cloud/translate": "^9.3.0",
+    "dotenv": "^17.3.1",
+    "ejs": "^5.0.1",
+    "express": "^5.2.1",
+    "google-translate-api-x": "^10.7.2",
+    "multer": "^2.1.1",
+    "node-fetch": "^2.7.0",
+    "p-limit": "^7.3.0",
+    "subtitle": "^4.2.2",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.27",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.1"
+  }
+}

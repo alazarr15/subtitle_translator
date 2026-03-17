@@ -1,0 +1,24 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Output / uploads
+output/
+uploads/
+subtitles/
+*.srt
+*.exe
+
+# Environment
+.env
+
+# Tailwind output
+public/css/output.css
+
+# Logs / editor files
+*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

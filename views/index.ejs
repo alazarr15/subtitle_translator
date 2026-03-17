@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fast SRT Translator</title>
+    <style>
+        body { background: #0b192c; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); padding: 30px; border-radius: 15px; width: 400px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .progress-bar { width: 100%; background: #222; height: 10px; border-radius: 5px; margin: 20px 0; overflow: hidden; display: none; }
+        .progress-fill { width: 0%; height: 100%; background: #008080; transition: width 0.3s ease; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.2s; }
+        .btn-start { background: #008080; color: white; }
+        .btn-start:hover { background: #006666; }
+        .btn-stop { background: #e74c3c; color: white; display: none; }
+        .btn-download { background: #2ecc71; color: white; text-decoration: none; display: none; margin-top: 20px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Subtitle Translator</h2>
+        <input type="file" id="fileInput" accept=".srt" style="margin-bottom: 20px;">
+        
+        <button id="startBtn" class="btn btn-start">Start Translation</button>
+        
+        <div class="progress-bar" id="pBarContainer"><div class="progress-fill" id="pFill"></div></div>
+        <p id="statusText">Ready</p>
+
+        <button id="stopBtn" class="btn btn-stop">Stop</button>
+        <a id="dlBtn" href="#" class="btn btn-download">Download Result</a>
+    </div>
+
+    <script>
+      console.log("🚀 Starting job");
+      let jobId = null;
+      let es = null;
+
+      const startBtn = document.getElementById('startBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      const dlBtn = document.getElementById('dlBtn');
+      const pFill = document.getElementById('pFill');
+      const pBarContainer = document.getElementById('pBarContainer');
+      const statusText = document.getElementById('statusText');
+      const fileInput = document.getElementById('fileInput');
+
+      startBtn.onclick = async () => {
+          const file = fileInput.files[0];
+          if (!file) return alert("Select SRT file");
+
+          dlBtn.style.display = 'none';
+          pFill.style.width = '0%';
+          pBarContainer.style.display = 'block';
+          statusText.innerText = "Starting...";
+          startBtn.style.display = 'none';
+          stopBtn.style.display = 'block';
+
+          const formData = new FormData();
+          formData.append('subtitle', file);
+
+          const res = await fetch('/translate', { method: 'POST', body: formData });
+          const data = await res.json();
+
+          console.log("JOB ID:", data);
+
+          jobId = data.jobId;
+
+          es = new EventSource(`http://localhost:3000/progress/${jobId}`);
+          es.onmessage = (e) => {
+              const job = JSON.parse(e.data);
+
+              console.log("📡 SSE message:", e.data);
+              console.log("📊 Progress:", job.progress, "Status:", job.status);
+
+              if (job.status === 'not_found') {
+                  finish(null, "Job not found");
+                  return;
+              }
+
+              pFill.style.width = job.progress + '%';
+              statusText.innerText = `Translating... ${job.progress}%`;
+
+              if (job.status === 'completed') {
+                  finish(job.downloadLink, "Done ✅");
+              } else if (job.status === 'cancelled') {
+                  finish(null, "Cancelled ❌");
+              } else if (job.status === 'error') {
+                  finish(null, "Error ❌");
+              }
+          };
+
+          es.onerror = () => {
+              finish(null, "Connection lost");
+          };
+      };
+
+     stopBtn.onclick = async () => {
+    console.log("🛑 Stop clicked");
+
+    if (!jobId) return;
+
+    await fetch(`http://localhost:3000/cancel/${jobId}`, { method: 'POST' });
+};
+      function finish(link, msg) {
+          if (es) {
+              es.close();
+              es = null;
+          }
+
+          statusText.innerText = msg;
+          stopBtn.style.display = 'none';
+          startBtn.style.display = 'block';
+
+          if (link) {
+              dlBtn.href = link;
+              dlBtn.style.display = 'block';
+          }
+
+          fileInput.value = '';
+      }
+  </script>
+</body>
+</html>
