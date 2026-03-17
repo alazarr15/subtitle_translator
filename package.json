@@ -4,8 +4,9 @@
   "main": "translate.js",
 "scripts": {
   "start": "node translate.js",
-  "build:css": "tailwindcss -i ./public/css/input.css -o ./public/css/output.css --minify",
-  "watch:css": "tailwindcss -i ./public/css/input.css -o ./public/css/output.css --watch"
+  "build:css": "npx tailwindcss -i ./public/css/input.css -o ./public/css/output.css --minify",
+  "build": "npm install && npm run build:css",
+  "watch:css": "npx tailwindcss -i ./public/css/input.css -o ./public/css/output.css --watch"
 },
   "keywords": [],
   "author": "",
