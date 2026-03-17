@@ -63,7 +63,7 @@
 
           jobId = data.jobId;
 
-          es = new EventSource(`http://localhost:3000/progress/${jobId}`);
+         es = new EventSource(`/progress/${jobId}`);
           es.onmessage = (e) => {
               const job = JSON.parse(e.data);
 
@@ -97,7 +97,7 @@
 
     if (!jobId) return;
 
-    await fetch(`http://localhost:3000/cancel/${jobId}`, { method: 'POST' });
+    await fetch(`/cancel/${jobId}`, { method: 'POST' });
 };
       function finish(link, msg) {
           if (es) {
