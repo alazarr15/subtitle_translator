@@ -2,10 +2,10 @@
   "name": "translate",
   "version": "1.0.0",
   "main": "translate.js",
- "scripts": {
-  "start": "node translate.js",
-  "build:css": "tailwindcss -i ./public/css/input.css -o ./public/css/output.css --minify",
-  "watch:css": "tailwindcss -i ./public/css/input.css -o ./public/css/output.css --watch"
+  "scripts": {
+    "start": "node translate.js",
+    "build:css": "tailwindcss -i ./public/css/input.css -o ./public/css/output.css --minify",
+    "watch:css": "tailwindcss -i ./public/css/input.css -o ./public/css/output.css --watch"
   },
   "keywords": [],
   "author": "",
