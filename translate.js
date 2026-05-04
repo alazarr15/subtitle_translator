@@ -23,7 +23,7 @@ const activeJobs = {};
     }
 });
 
-async function processTranslation(jobId, inputPath, outputPath) {
+async function processTranslation(jobId, inputPath, outputPath, fromLang, toLang) {
     console.log("🚀 Job started:", jobId);
 
     try {
@@ -63,7 +63,7 @@ async function processTranslation(jobId, inputPath, outputPath) {
                 try {
                     console.log(`🌍 Translating chunk ${chunkIndex}...`);
 
-                    const res = await translate(texts, { from: 'tr', to: 'en' });
+                    const res = await translate(texts, { from: fromLang, to: toLang });
 
                     if (activeJobs[jobId].status === 'cancelled') {
                         console.log(`🛑 Job cancelled after API for chunk ${chunkIndex}`);
@@ -123,7 +123,10 @@ app.post('/translate', upload.single('subtitle'), (req, res) => {
 
     const jobId = crypto.randomUUID();
     const originalName = req.file.originalname;
-    const translatedFileName = originalName.replace(/\.srt$/i, '_EN.srt');
+    const fromLang = req.body.fromLang || 'auto';
+    const toLang = req.body.toLang || 'en';
+    const langSuffix = toLang.toUpperCase();
+    const translatedFileName = originalName.replace(/\.srt$/i, `_${langSuffix}.srt`);
     const outputPath = path.join(__dirname, 'output', translatedFileName);
 
     activeJobs[jobId] = {
@@ -134,7 +137,7 @@ app.post('/translate', upload.single('subtitle'), (req, res) => {
         downloadLink: `/download/${encodeURIComponent(translatedFileName)}`
     };
 
-    processTranslation(jobId, req.file.path, outputPath);
+    processTranslation(jobId, req.file.path, outputPath, fromLang, toLang);
 
     res.json({ jobId });
 });
